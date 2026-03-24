@@ -1,0 +1,25 @@
+name: Sync Fork com LibreChat original
+
+on:
+  schedule:
+    - cron: '0 9 * * 1' # Toda segunda-feira às 9h (UTC)
+  workflow_dispatch: # Permite rodar manualmente também
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do fork
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Sincronizar com o repositório original
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/danny-avila/LibreChat.git
+          git fetch upstream
+          git merge upstream/main --no-edit || echo "⚠️ Conflito detectado — sincronização manual necessária"
+          git push origin main
