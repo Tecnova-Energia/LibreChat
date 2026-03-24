@@ -1,7 +1,7 @@
 import { useMemo, useCallback, useState, useEffect, useRef } from 'react';
 import { easings } from '@react-spring/web';
 import { EModelEndpoint } from 'librechat-data-provider';
-import { BirthdayIcon, TooltipAnchor, SplitText, useTheme } from '@librechat/client';
+import { BirthdayIcon, TooltipAnchor, SplitText } from '@librechat/client';
 import { useChatContext, useAgentsMapContext, useAssistantsMapContext } from '~/Providers';
 import { useGetEndpointsQuery, useGetStartupConfig } from '~/data-provider';
 import ConvoIcon from '~/components/Endpoints/ConvoIcon';
@@ -132,9 +132,7 @@ export default function Landing({ centerFormOnLanding }: { centerFormOnLanding: 
     return margin;
   }, [lineCount, description, textHasMultipleLines, contentHeight]);
 
-  const { theme } = useTheme();
-  const isDarkMode = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  const novaLogo = isDarkMode ? '/assets/nova-logo-dark.png' : '/assets/nova-logo-light.png';
+  const novaLogo = '/assets/nova-logo.png';
 
   const greetingText =
     typeof startupConfig?.interface?.customWelcome === 'string'
