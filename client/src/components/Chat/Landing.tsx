@@ -137,6 +137,17 @@ export default function Landing({ centerFormOnLanding }: { centerFormOnLanding: 
       ? getGreeting()
       : getGreeting() + (user?.name ? ', ' + user.name : '');
 
+  // Se customWelcome contiver HTML, renderiza como HTML em vez de usar SplitText
+  const greetingNode =
+    typeof startupConfig?.interface?.customWelcome === 'string'
+      ? (
+        <span
+          className={`${getTextSizeClass(greetingText)} font-medium text-text-primary`}
+          dangerouslySetInnerHTML={{ __html: getGreeting() }}
+        />
+      )
+      : null;
+
   return (
     <div
       className={`flex h-full transform-gpu flex-col items-center justify-center pb-16 transition-all duration-200 ${centerFormOnLanding ? 'max-h-full sm:max-h-0' : 'max-h-full'} ${getDynamicMargin}`}
@@ -183,19 +194,21 @@ export default function Landing({ centerFormOnLanding }: { centerFormOnLanding: 
               />
             </div>
           ) : (
-            <SplitText
-              key={`split-text-${greetingText}${user?.name ? '-user' : ''}`}
-              text={greetingText}
-              className={`${getTextSizeClass(greetingText)} font-medium text-text-primary`}
-              delay={50}
-              textAlign="center"
-              animationFrom={{ opacity: 0, transform: 'translate3d(0,50px,0)' }}
-              animationTo={{ opacity: 1, transform: 'translate3d(0,0,0)' }}
-              easing={easings.easeOutCubic}
-              threshold={0}
-              rootMargin="0px"
-              onLineCountChange={handleLineCountChange}
-            />
+            greetingNode ?? (
+              <SplitText
+                key={`split-text-${greetingText}${user?.name ? '-user' : ''}`}
+                text={greetingText}
+                className={`${getTextSizeClass(greetingText)} font-medium text-text-primary`}
+                delay={50}
+                textAlign="center"
+                animationFrom={{ opacity: 0, transform: 'translate3d(0,50px,0)' }}
+                animationTo={{ opacity: 1, transform: 'translate3d(0,0,0)' }}
+                easing={easings.easeOutCubic}
+                threshold={0}
+                rootMargin="0px"
+                onLineCountChange={handleLineCountChange}
+              />
+            )
           )}
         </div>
         {description && (
