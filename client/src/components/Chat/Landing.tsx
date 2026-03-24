@@ -1,4 +1,5 @@
-import { useMemo, useCallback, useState, useEffect, useRef } from 'react';
+import { useMemo, useCallback, useState, useEffect, useRef, useContext } from 'react';
+import { ThemeContext } from '~/hooks/ThemeContext';
 import { easings } from '@react-spring/web';
 import { EModelEndpoint } from 'librechat-data-provider';
 import { BirthdayIcon, TooltipAnchor, SplitText } from '@librechat/client';
@@ -132,18 +133,55 @@ export default function Landing({ centerFormOnLanding }: { centerFormOnLanding: 
     return margin;
   }, [lineCount, description, textHasMultipleLines, contentHeight]);
 
-  const greetingText =
+  const { theme } = useContext(ThemeContext);
+  const isDark = theme === 'dark';
+  const novaLogo = isDark ? '/assets/nova-logo-dark.png' : '/assets/nova-logo-light.png';
     typeof startupConfig?.interface?.customWelcome === 'string'
       ? getGreeting()
       : getGreeting() + (user?.name ? ', ' + user.name : '');
 
-  // Se customWelcome contiver HTML, renderiza como HTML em vez de usar SplitText
+  // Animação letra por letra para customWelcome com suporte a HTML
+  const [visibleCount, setVisibleCount] = useState(0);
+  const rawGreeting = getGreeting();
+
+  // Extrai apenas o texto puro para contar letras, preservando o HTML
+  const plainText = useMemo(() => {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = rawGreeting;
+    return tmp.textContent ?? '';
+  }, [rawGreeting]);
+
+  useEffect(() => {
+    if (typeof startupConfig?.interface?.customWelcome !== 'string') return;
+    setVisibleCount(0);
+    if (plainText.length === 0) return;
+    let i = 0;
+    const interval = setInterval(() => {
+      i++;
+      setVisibleCount(i);
+      if (i >= plainText.length) clearInterval(interval);
+    }, 50);
+    return () => clearInterval(interval);
+  }, [plainText, startupConfig?.interface?.customWelcome]);
+
+  // Reconstrói o HTML mostrando apenas as primeiras `visibleCount` letras
+  const animatedHTML = useMemo(() => {
+    let count = 0;
+    const animate = (html: string): string =>
+      html.replace(/(<[^>]+>)|([^<])/g, (match, tag, char) => {
+        if (tag) return tag; // mantém tags HTML intactas
+        if (count < visibleCount) { count++; return char; }
+        return `<span style="opacity:0">${char}</span>`;
+      });
+    return animate(rawGreeting);
+  }, [rawGreeting, visibleCount]);
+
   const greetingNode =
     typeof startupConfig?.interface?.customWelcome === 'string'
       ? (
         <span
           className={`${getTextSizeClass(greetingText)} font-medium text-text-primary`}
-          dangerouslySetInnerHTML={{ __html: getGreeting() }}
+          dangerouslySetInnerHTML={{ __html: animatedHTML }}
         />
       )
       : null;
@@ -157,25 +195,11 @@ export default function Landing({ centerFormOnLanding }: { centerFormOnLanding: 
           className={`flex ${textHasMultipleLines ? 'flex-col' : 'flex-col md:flex-row'} items-center justify-center gap-2`}
         >
           <div className={`relative size-10 justify-center ${textHasMultipleLines ? 'mb-2' : ''}`}>
-            <ConvoIcon
-              agentsMap={agentsMap}
-              assistantMap={assistantMap}
-              conversation={conversation}
-              endpointsConfig={endpointsConfig}
-              containerClassName={containerClassName}
-              context="landing"
-              className="h-2/3 w-2/3 text-black dark:text-white"
-              size={41}
+            <img
+              src={novaLogo}
+              alt="Nova Logo"
+              className="h-full w-full object-contain"
             />
-            {startupConfig?.showBirthdayIcon && (
-              <TooltipAnchor
-                className="absolute bottom-[27px] right-2"
-                description={localize('com_ui_happy_birthday')}
-                aria-label={localize('com_ui_happy_birthday')}
-              >
-                <BirthdayIcon />
-              </TooltipAnchor>
-            )}
           </div>
           {((isAgent || isAssistant) && name) || name ? (
             <div className="flex flex-col items-center gap-0 p-2">
