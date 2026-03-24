@@ -1,5 +1,4 @@
-import { useMemo, useCallback, useState, useEffect, useRef, useContext } from 'react';
-import { ThemeContext } from '~/hooks/ThemeContext';
+import { useMemo, useCallback, useState, useEffect, useRef } from 'react';
 import { easings } from '@react-spring/web';
 import { EModelEndpoint } from 'librechat-data-provider';
 import { BirthdayIcon, TooltipAnchor, SplitText } from '@librechat/client';
@@ -133,9 +132,7 @@ export default function Landing({ centerFormOnLanding }: { centerFormOnLanding: 
     return margin;
   }, [lineCount, description, textHasMultipleLines, contentHeight]);
 
-  const { theme } = useContext(ThemeContext);
-  const isDark = theme === 'dark';
-  const novaLogo = isDark ? '/assets/nova-logo-dark.png' : '/assets/nova-logo-light.png';
+  const greetingText =
     typeof startupConfig?.interface?.customWelcome === 'string'
       ? getGreeting()
       : getGreeting() + (user?.name ? ', ' + user.name : '');
@@ -195,11 +192,25 @@ export default function Landing({ centerFormOnLanding }: { centerFormOnLanding: 
           className={`flex ${textHasMultipleLines ? 'flex-col' : 'flex-col md:flex-row'} items-center justify-center gap-2`}
         >
           <div className={`relative size-10 justify-center ${textHasMultipleLines ? 'mb-2' : ''}`}>
-            <img
-              src={novaLogo}
-              alt="Nova Logo"
-              className="h-full w-full object-contain"
+            <ConvoIcon
+              agentsMap={agentsMap}
+              assistantMap={assistantMap}
+              conversation={conversation}
+              endpointsConfig={endpointsConfig}
+              containerClassName={containerClassName}
+              context="landing"
+              className="h-2/3 w-2/3 text-black dark:text-white"
+              size={41}
             />
+            {startupConfig?.showBirthdayIcon && (
+              <TooltipAnchor
+                className="absolute bottom-[27px] right-2"
+                description={localize('com_ui_happy_birthday')}
+                aria-label={localize('com_ui_happy_birthday')}
+              >
+                <BirthdayIcon />
+              </TooltipAnchor>
+            )}
           </div>
           {((isAgent || isAssistant) && name) || name ? (
             <div className="flex flex-col items-center gap-0 p-2">
