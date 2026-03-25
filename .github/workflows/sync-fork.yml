@@ -15,11 +15,19 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      - name: Sincronizar com o repositório original
+      - name: Sincronizar com o repositório original (mantendo nossas alterações)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git remote add upstream https://github.com/danny-avila/LibreChat.git
           git fetch upstream
-          git merge upstream/main --no-edit || echo "⚠️ Conflito detectado — sincronização manual necessária"
+
+          # Merge priorizando NOSSA versão em caso de conflito
+          git merge upstream/main --no-edit --strategy-option=ours || {
+            echo "⚠️ Conflito detectado — resolvendo mantendo nossas alterações..."
+            git checkout --ours .
+            git add .
+            git commit -m "chore: sync com upstream (mantendo customizações da Nova)"
+          }
+
           git push origin main
