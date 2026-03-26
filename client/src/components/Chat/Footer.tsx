@@ -14,7 +14,7 @@ function Footer({ className }: { className?: string }) {
 
   const privacyPolicyRender = privacyPolicy?.externalUrl != null && (
     <a className="text-text-secondary underline" href={privacyPolicy.externalUrl} rel="noreferrer">
-      {localize('com_ui_privacy_policy')}
+      {localize('tecnovaenergia.com.br')}
     </a>
   );
 
