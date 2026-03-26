@@ -20,7 +20,7 @@ function Footer({ className }: { className?: string }) {
 
   const termsOfServiceRender = termsOfService?.externalUrl != null && (
     <a className="text-text-secondary underline" href={termsOfService.externalUrl} rel="noreferrer">
-      {localize('com_ui_terms_of_service')}
+      {'Política de Uso da IA'}
     </a>
   );
 
