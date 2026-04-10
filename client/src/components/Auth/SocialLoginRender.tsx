@@ -1,30 +1,23 @@
 import {
   GoogleIcon,
   FacebookIcon,
-  OpenIDIcon,
   GithubIcon,
   DiscordIcon,
   AppleIcon,
   SamlIcon,
 } from '@librechat/client';
-
 import SocialButton from './SocialButton';
-
 import { useLocalize } from '~/hooks';
-
 import { TStartupConfig } from 'librechat-data-provider';
-
 function SocialLoginRender({
   startupConfig,
 }: {
   startupConfig: TStartupConfig | null | undefined;
 }) {
   const localize = useLocalize();
-
   if (!startupConfig) {
     return null;
   }
-
   const providerComponents = {
     discord: startupConfig.discordLoginEnabled && (
       <SocialButton
@@ -81,7 +74,7 @@ function SocialLoginRender({
         id="apple"
       />
     ),
-openid: startupConfig.openidLoginEnabled && (
+    openid: startupConfig.openidLoginEnabled && (
       <div key="openid">
         <SocialButton
           enabled={startupConfig.openidLoginEnabled}
@@ -105,8 +98,24 @@ openid: startupConfig.openidLoginEnabled && (
         </p>
       </div>
     ),
+    saml: startupConfig.samlLoginEnabled && (
+      <SocialButton
+        key="saml"
+        enabled={startupConfig.samlLoginEnabled}
+        serverDomain={startupConfig.serverDomain}
+        oauthPath="saml"
+        Icon={() =>
+          startupConfig.samlImageUrl ? (
+            <img src={startupConfig.samlImageUrl} alt="SAML Logo" className="h-5 w-5" />
+          ) : (
+            <SamlIcon />
+          )
+        }
+        label={startupConfig.samlLabel ? startupConfig.samlLabel : localize('com_auth_saml_login')}
+        id="saml"
+      />
+    ),
   };
-
   return (
     startupConfig.socialLoginEnabled && (
       <>
@@ -127,5 +136,4 @@ openid: startupConfig.openidLoginEnabled && (
     )
   );
 }
-
 export default SocialLoginRender;
