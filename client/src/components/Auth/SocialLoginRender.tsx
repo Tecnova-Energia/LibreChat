@@ -81,23 +81,7 @@ function SocialLoginRender({
         id="apple"
       />
     ),
-    openid: startupConfig.openidLoginEnabled && (
-      <SocialButton
-        key="openid"
-        enabled={startupConfig.openidLoginEnabled}
-        serverDomain={startupConfig.serverDomain}
-        oauthPath="openid"
-        Icon={() =>
-          startupConfig.openidImageUrl ? (
-            <img src={startupConfig.openidImageUrl} alt="OpenID Logo" className="h-5 w-5" />
-          ) : (
-            <OpenIDIcon />
-          )
-        }
-        label={startupConfig.openidLabel}
-        id="openid"
-      />
-    ),
+openid: startupConfig.openidLoginEnabled
     saml: startupConfig.samlLoginEnabled && (
       <SocialButton
         key="saml"
