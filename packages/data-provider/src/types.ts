@@ -366,6 +366,7 @@ export type TConfig = {
   azure?: boolean;
   availableTools?: [];
   availableRegions?: string[];
+  allowedProviders?: (string | EModelEndpoint)[];
   plugins?: Record<string, string>;
   name?: string;
   iconURL?: string;
@@ -538,6 +539,7 @@ export type TPromptGroup = {
   productionPrompt?: Pick<TPrompt, 'prompt'> | null;
   author: string;
   authorName: string;
+  isPublic?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
   _id?: string;
