@@ -19,6 +19,7 @@ permissions:
 
 jobs:
   build-and-publish:
+    if: github.repository == 'danny-avila/LibreChat'
     runs-on: ubuntu-latest
     environment: publish  # Must match npm trusted publisher config
     steps:

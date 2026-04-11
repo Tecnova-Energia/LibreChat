@@ -19,6 +19,7 @@ permissions:
 
 jobs:
   build:
+    if: github.repository == 'danny-avila/LibreChat'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,6 +30,7 @@ jobs:
       - run: cd packages/data-provider && npm run build
 
   publish-npm:
+    if: github.repository == 'danny-avila/LibreChat'
     needs: build
     runs-on: ubuntu-latest
     environment: publish  # Must match npm trusted publisher config

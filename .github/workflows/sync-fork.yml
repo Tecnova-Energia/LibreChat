@@ -2,32 +2,99 @@ name: Sync Fork com LibreChat original
 
 on:
   schedule:
-    - cron: '0 9 * * 1' # Toda segunda-feira às 9h (UTC)
-  workflow_dispatch: # Permite rodar manualmente também
+    - cron: '0 9 * * 1,4' # Segunda e quinta às 9h UTC
+  workflow_dispatch:
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     steps:
-      - name: Checkout do fork
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      - name: Sincronizar com o repositório original (mantendo nossas alterações)
+      - name: Configurar git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Adicionar upstream
+        run: |
           git remote add upstream https://github.com/danny-avila/LibreChat.git
           git fetch upstream
 
-          # Merge priorizando NOSSA versão em caso de conflito
-          git merge upstream/main --no-edit --strategy-option=ours || {
-            echo "⚠️ Conflito detectado — resolvendo mantendo nossas alterações..."
-            git checkout --ours .
-            git add .
-            git commit -m "chore: sync com upstream (mantendo customizações da Nova)"
-          }
+      - name: Verificar commits novos
+        id: check
+        run: |
+          COMMITS=$(git rev-list HEAD..upstream/main --count)
+          echo "commits=$COMMITS" >> $GITHUB_OUTPUT
+          if [ "$COMMITS" = "0" ]; then
+            echo "✅ Fork já está atualizado. Nenhum commit novo no upstream."
+          else
+            echo "📦 $COMMITS commit(s) novo(s) encontrado(s) no upstream:"
+            git log --oneline HEAD..upstream/main
+          fi
 
-          git push origin main
+      - name: Fazer merge do upstream
+        if: steps.check.outputs.commits != '0'
+        run: |
+          git merge upstream/main --no-edit || {
+            echo ""
+            echo "❌ CONFLITO DETECTADO — merge automático falhou!"
+            echo ""
+            echo "Arquivos com conflito:"
+            git diff --name-only --diff-filter=U
+            git merge --abort
+            echo ""
+            echo "⚠️  Resolva o conflito manualmente e faça push."
+            exit 1
+          }
+          echo "✅ Merge realizado com sucesso!"
+
+      - name: Garantir que workflows do upstream não rodem no fork
+        if: steps.check.outputs.commits != '0'
+        run: |
+          # Lista de workflows que não devem rodar no fork
+          FILES=(
+            ".github/workflows/dev-images.yml"
+            ".github/workflows/dev-branch-images.yml"
+            ".github/workflows/locize-i18n-sync.yml"
+            ".github/workflows/client.yml"
+            ".github/workflows/data-provider.yml"
+            ".github/workflows/data-schemas.yml"
+          )
+
+          CHANGED=false
+          GUARD="    if: github.repository == 'danny-avila/LibreChat'"
+
+          for FILE in "${FILES[@]}"; do
+            if [ -f "$FILE" ] && ! grep -q "danny-avila/LibreChat" "$FILE"; then
+              # Insere o guard logo antes do primeiro "runs-on:" dentro de jobs
+              # (substitui apenas a primeira ocorrência)
+              sed -i "0,/    runs-on: ubuntu-latest/{s/    runs-on: ubuntu-latest/$GUARD\n    runs-on: ubuntu-latest/}" "$FILE"
+              echo "  ✅ Guard restaurado em: $FILE"
+              CHANGED=true
+            fi
+          done
+
+          if [ "$CHANGED" = true ]; then
+            git add .github/workflows/
+            git commit -m "chore: restaurar guards de fork em workflows do upstream"
+          fi
+
+      - name: Push para origin
+        if: steps.check.outputs.commits != '0'
+        run: git push origin main
+
+      - name: Resumo
+        run: |
+          if [ "${{ steps.check.outputs.commits }}" = "0" ]; then
+            echo "✅ Nada a fazer — fork já atualizado."
+          else
+            echo "🎉 Sync concluído! ${{ steps.check.outputs.commits }} commit(s) incorporado(s) do upstream."
+          fi

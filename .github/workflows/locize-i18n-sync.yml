@@ -8,6 +8,7 @@ on:
 
 jobs:
   sync-translations:
+    if: github.repository == 'danny-avila/LibreChat'
     name: Sync Translation Keys with Locize
     runs-on: ubuntu-latest
     steps:
@@ -35,6 +36,7 @@ jobs:
         run: echo "Skipping sync as the event is not a push."
 
   create-pull-request:
+    if: github.repository == 'danny-avila/LibreChat'
     name: Create Translation PR on Version Published
     runs-on: ubuntu-latest
     needs: sync-translations

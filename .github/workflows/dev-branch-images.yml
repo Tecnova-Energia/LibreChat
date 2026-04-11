@@ -12,6 +12,7 @@ on:
 
 jobs:
   build:
+    if: github.repository == 'danny-avila/LibreChat'
     runs-on: ubuntu-latest
     strategy:
       matrix:
