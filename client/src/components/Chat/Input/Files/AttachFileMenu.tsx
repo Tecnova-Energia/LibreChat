@@ -22,6 +22,7 @@ import {
   isPermissiveMimeConfig,
   defaultAgentCapabilities,
   bedrockDocumentExtensions,
+  openaiDocumentExtensions,
   isDocumentSupportedProvider,
 } from 'librechat-data-provider';
 import type { EndpointFileConfig, TConversation } from 'librechat-data-provider';
@@ -125,13 +126,13 @@ const AttachFileMenu = ({
       } else if (fileType === 'image') {
         inputRef.current.accept = 'image/*,.heif,.heic';
       } else if (fileType === 'document') {
-        inputRef.current.accept = '.pdf,application/pdf';
+        inputRef.current.accept = openaiDocumentExtensions;
       } else if (fileType === 'image_document') {
-        inputRef.current.accept = 'image/*,.heif,.heic,.pdf,application/pdf';
+        inputRef.current.accept = `image/*,.heif,.heic,${openaiDocumentExtensions}`;
       } else if (fileType === 'image_document_extended') {
         inputRef.current.accept = `image/*,.heif,.heic,${bedrockDocumentExtensions}`;
       } else if (fileType === 'image_document_video_audio') {
-        inputRef.current.accept = 'image/*,.heif,.heic,.pdf,application/pdf,video/*,audio/*';
+        inputRef.current.accept = `image/*,.heif,.heic,${openaiDocumentExtensions},video/*,audio/*`;
       } else {
         inputRef.current.accept = '';
       }
