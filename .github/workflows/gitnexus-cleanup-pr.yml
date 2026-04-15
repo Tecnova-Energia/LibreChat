@@ -24,7 +24,7 @@ jobs:
     # from a fork close would fail noisily. The deploy workflow's stale-
     # folder pruning step catches any fork-contributor indexes that
     # actually made it onto the droplet.
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: github.repository == 'danny-avila/LibreChat' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

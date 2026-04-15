@@ -79,8 +79,10 @@ jobs:
   # change. Skipped on every other run, so index-only deploys are fast.
   build-image:
     if: |
-      github.event_name == 'workflow_dispatch' ||
-      github.event.workflow_run.conclusion == 'success'
+      github.repository == 'danny-avila/LibreChat' && (
+        github.event_name == 'workflow_dispatch' ||
+        github.event.workflow_run.conclusion == 'success'
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -139,6 +141,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy:
+    if: github.repository == 'danny-avila/LibreChat'
     needs: build-image
     runs-on: ubuntu-latest
     timeout-minutes: 20

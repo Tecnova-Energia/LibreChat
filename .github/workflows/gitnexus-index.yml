@@ -51,10 +51,12 @@ jobs:
     # the case where the commenter wants to index a non-contributor or
     # fork PR (the command uses refs/pull/<N>/head so checkout resolves).
     if: |
-      github.event_name != 'pull_request' ||
-      github.event.pull_request.author_association == 'OWNER' ||
-      github.event.pull_request.author_association == 'MEMBER' ||
-      github.event.pull_request.author_association == 'COLLABORATOR'
+      github.repository == 'danny-avila/LibreChat' && (
+        github.event_name != 'pull_request' ||
+        github.event.pull_request.author_association == 'OWNER' ||
+        github.event.pull_request.author_association == 'MEMBER' ||
+        github.event.pull_request.author_association == 'COLLABORATOR'
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:

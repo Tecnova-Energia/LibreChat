@@ -46,6 +46,7 @@ jobs:
     # commenters. Intentionally checks the COMMENTER's association so a
     # contributor can index a non-contributor's PR on demand.
     if: |
+      github.repository == 'danny-avila/LibreChat' &&
       github.event.issue.pull_request != null &&
       startsWith(github.event.comment.body, '/gitnexus') &&
       (github.event.comment.author_association == 'OWNER' ||
