@@ -16,6 +16,7 @@ const {
   removeNullishValues,
   isAssistantsEndpoint,
   getEndpointFileConfig,
+  textMimeTypes,
   documentParserMimeTypes,
 } = require('librechat-data-provider');
 const { EnvVar } = require('@librechat/agents');
@@ -517,7 +518,8 @@ const processAgentFileUpload = async ({ req, res, metadata }) => {
       !tool_resource &&
       !isImage &&
       file.mimetype !== 'application/pdf' &&
-      documentParserMimeTypes.some((regex) => regex.test(file.mimetype)))
+      (documentParserMimeTypes.some((regex) => regex.test(file.mimetype)) ||
+        textMimeTypes.test(file.mimetype)))
   ) {
     const { file_id, temp_file_id = null } = metadata;
 

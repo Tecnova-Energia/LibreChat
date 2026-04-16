@@ -86,8 +86,17 @@ para também rotear uploads de chat regular quando:
     !tool_resource &&
     !isImage &&
     file.mimetype !== 'application/pdf' &&
-    documentParserMimeTypes.some((regex) => regex.test(file.mimetype)))
+    (documentParserMimeTypes.some((regex) => regex.test(file.mimetype)) ||
+      textMimeTypes.test(file.mimetype)))
 ) {
+```
+
+`textMimeTypes` deve ser importado junto com `documentParserMimeTypes` no topo do arquivo:
+
+```js
+  textMimeTypes,
+  documentParserMimeTypes,
+} = require('librechat-data-provider');
 ```
 
 PDF continua indo pelo caminho binário (funciona nativamente na Responses API).
