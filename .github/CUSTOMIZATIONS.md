@@ -62,7 +62,44 @@ import {
 
 ---
 
-## 2. Workflows GitNexus — silenciados no fork
+## 2. Extração de texto para documentos no chat regular
+
+**Problema resolvido:** arquivos Excel, Word, CSV e TXT enviados no chat
+regular (não agentes) não tinham o texto extraído no upload — iam direto
+para armazenamento binário. Na hora de enviar à OpenAI, a Responses API
+(GPT-5.4) rejeitava por não suportar esses MIME types como `file_data`.
+O texto extraído já funcionava para agentes (via `EToolResources.context`)
+mas estava ausente para uploads de chat regular.
+
+### `api/server/services/Files/process.js`
+
+**O que fizemos:** estendemos a condição do bloco `EToolResources.context`
+para também rotear uploads de chat regular quando:
+- É um `messageAttachment` sem `tool_resource` explícito
+- O arquivo não é imagem e não é PDF
+- O MIME type está em `documentParserMimeTypes` (Excel, Word, CSV, TXT, etc.)
+
+```js
+} else if (
+  tool_resource === EToolResources.context ||
+  (messageAttachment &&
+    !tool_resource &&
+    !isImage &&
+    file.mimetype !== 'application/pdf' &&
+    documentParserMimeTypes.some((regex) => regex.test(file.mimetype)))
+) {
+```
+
+PDF continua indo pelo caminho binário (funciona nativamente na Responses API).
+Imagens continuam pelo caminho de imagem. Apenas documentos de texto
+(Excel → CSV, Word → texto, etc.) são roteados para extração.
+
+**Como resolver conflito:** manter a lógica nova do upstream na condição
+`else if` + reinserir a segunda parte do `||` conforme acima.
+
+---
+
+## 3. Workflows GitNexus — silenciados no fork
 
 **Problema resolvido:** os workflows do GitNexus (infraestrutura interna do
 upstream no DigitalOcean) disparavam no fork da Tecnova a cada sync,
