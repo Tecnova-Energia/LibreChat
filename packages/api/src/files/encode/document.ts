@@ -58,9 +58,6 @@ function formatDocumentBlock(
   const resolvedFilename = filename ?? 'document';
 
   if (useResponsesApi) {
-    if (mimeType !== 'application/pdf') {
-      return null;
-    }
     return {
       type: 'input_file',
       filename: resolvedFilename,

@@ -62,42 +62,7 @@ import {
 
 ---
 
-## 2. Responses API — Excel bloqueado antes de enviar à OpenAI
-
-**Problema resolvido:** ao enviar um arquivo Excel (.xlsx) no chat com GPT-5.4
-(que usa a Responses API), a OpenAI retornava erro 400 porque a Responses API
-só aceita `application/pdf` no formato `file_data`. O LibreChat enviava Excel
-como base64 sem validar o tipo.
-
-### `packages/api/src/files/encode/document.ts`
-
-**O que fizemos:** adicionamos verificação de MIME type no `formatDocumentBlock`
-para quando `useResponsesApi` é `true` — qualquer tipo que não seja PDF retorna
-`null` (arquivo ignorado silenciosamente, sem crash).
-
-```ts
-if (useResponsesApi) {
-  if (mimeType !== 'application/pdf') {
-    return null;
-  }
-  return {
-    type: 'input_file',
-    filename: resolvedFilename,
-    file_data: `data:${mimeType};base64,${content}`,
-  };
-}
-```
-
-**Como resolver conflito:** manter a versão do upstream do bloco `if (useResponsesApi)`
-+ reinserir o `if (mimeType !== 'application/pdf') { return null; }` antes do `return`.
-
-> **Nota:** Excel e outros formatos de documento funcionam via agentes com a
-> tool `file_search` — esse bloqueio só afeta o chat direto com modelos que
-> usam a Responses API (ex: GPT-5.4).
-
----
-
-## 3. Workflows GitNexus — silenciados no fork
+## 2. Workflows GitNexus — silenciados no fork
 
 **Problema resolvido:** os workflows do GitNexus (infraestrutura interna do
 upstream no DigitalOcean) disparavam no fork da Tecnova a cada sync,
