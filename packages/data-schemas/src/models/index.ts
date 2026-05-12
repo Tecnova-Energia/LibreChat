@@ -29,6 +29,7 @@ import { createMemoryModel } from './memory';
 import { createAccessRoleModel } from './accessRole';
 import { createAclEntryModel } from './aclEntry';
 import { createSystemGrantModel } from './systemGrant';
+import { createAuditLogModel } from './auditLog';
 import { createGroupModel } from './group';
 import { createConfigModel } from './config';
 
@@ -68,6 +69,7 @@ export function createModels(mongoose: typeof import('mongoose')) {
     AccessRole: createAccessRoleModel(mongoose),
     AclEntry: createAclEntryModel(mongoose),
     SystemGrant: createSystemGrantModel(mongoose),
+    AuditLog: createAuditLogModel(mongoose),
     Group: createGroupModel(mongoose),
     Config: createConfigModel(mongoose),
   };
