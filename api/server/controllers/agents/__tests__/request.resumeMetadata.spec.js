@@ -90,6 +90,7 @@ describe('ResumableAgentController resume metadata', () => {
         conversationId,
         endpointOption: {
           endpoint: 'agents',
+          iconURL: 'https://example.com/spec-icon.png',
           modelOptions: { model: 'gpt-3.5-turbo' },
         },
       },
@@ -105,16 +106,22 @@ describe('ResumableAgentController resume metadata', () => {
 
     await AgentController(req, res, jest.fn(), initializeClient, null);
 
-    expect(mockGenerationJobManager.updateMetadata).toHaveBeenCalledWith(conversationId, {
+    expect(mockGenerationJobManager.updateMetadata).toHaveBeenCalledWith(
       conversationId,
-      responseMessageId: 'follow-up-user_',
-      userMessage: {
-        messageId: 'follow-up-user',
-        parentMessageId: 'original-response',
+      expect.objectContaining({
         conversationId,
-        text: 'Check Google Workspace availability.',
-      },
-    });
+        endpoint: 'agents',
+        iconURL: 'https://example.com/spec-icon.png',
+        model: 'gpt-3.5-turbo',
+        responseMessageId: 'follow-up-user_',
+        userMessage: {
+          messageId: 'follow-up-user',
+          parentMessageId: 'original-response',
+          conversationId,
+          text: 'Check Google Workspace availability.',
+        },
+      }),
+    );
     expect(mockGenerationJobManager.updateMetadata.mock.invocationCallOrder[0]).toBeLessThan(
       initializeClient.mock.invocationCallOrder[0],
     );
@@ -138,6 +145,8 @@ describe('ResumableAgentController resume metadata', () => {
     mockGenerationJobManager.getResumeState.mockResolvedValue({
       conversationId,
       responseMessageId: 'response-message',
+      iconURL: 'https://example.com/spec-icon.png',
+      model: 'gpt-4.1',
       userMessage: {
         messageId: 'user-message',
         parentMessageId: 'parent-message',
@@ -156,6 +165,7 @@ describe('ResumableAgentController resume metadata', () => {
         conversationId,
         endpointOption: {
           endpoint: 'agents',
+          iconURL: 'https://example.com/fallback-icon.png',
           modelOptions: { model: 'gpt-3.5-turbo' },
         },
       },
@@ -188,6 +198,8 @@ describe('ResumableAgentController resume metadata', () => {
       expect.objectContaining({ userId: 'user-123' }),
       expect.objectContaining({
         content: [textPart],
+        iconURL: 'https://example.com/spec-icon.png',
+        model: 'gpt-4.1',
         messageId: 'response-message',
         parentMessageId: 'user-message',
       }),

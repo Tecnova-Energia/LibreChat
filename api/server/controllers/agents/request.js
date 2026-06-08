@@ -162,13 +162,14 @@ const ResumableAgentController = async (req, res, next, initializeClient, addTit
 
     const preliminaryUserMessage = getPreliminaryUserMessage(req.body, conversationId);
     const preliminaryResponseMessageId = getPreliminaryResponseMessageId(req.body);
-    if (preliminaryUserMessage || preliminaryResponseMessageId) {
-      await GenerationJobManager.updateMetadata(streamId, {
-        conversationId,
-        responseMessageId: preliminaryResponseMessageId,
-        userMessage: preliminaryUserMessage,
-      });
-    }
+    await GenerationJobManager.updateMetadata(streamId, {
+      conversationId,
+      endpoint: endpointOption.endpoint,
+      iconURL: endpointOption.iconURL,
+      model: endpointOption.modelOptions?.model || endpointOption.model_parameters?.model,
+      responseMessageId: preliminaryResponseMessageId,
+      userMessage: preliminaryUserMessage,
+    });
 
     // Note: We no longer use res.on('close') to abort since we send JSON immediately.
     // The response closes normally after res.json(), which is not an abort condition.
@@ -218,7 +219,11 @@ const ResumableAgentController = async (req, res, next, initializeClient, addTit
           isCreatedByUser: false,
           user: userId,
           endpoint: endpointOption.endpoint,
-          model: endpointOption.modelOptions?.model || endpointOption.model_parameters?.model,
+          iconURL: resumeState.iconURL || endpointOption.iconURL,
+          model:
+            resumeState.model ||
+            endpointOption.modelOptions?.model ||
+            endpointOption.model_parameters?.model,
         };
 
         if (req.body?.agent_id) {
